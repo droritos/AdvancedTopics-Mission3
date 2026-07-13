@@ -25,7 +25,7 @@ public class ExplosiveBullet : MonoBehaviour
             Vector3 bulletDirection = new Vector3(Mathf.Cos(radian), Mathf.Sin(radian), 0);
             GameObject tempBullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity, bulletParent.transform);
             Rigidbody2D tempBulletRigidbody = tempBullet.GetComponent<Rigidbody2D>();
-            tempBulletRigidbody.velocity = bulletDirection * bulletSpeed;
+            tempBulletRigidbody.linearVelocity = bulletDirection * bulletSpeed;
 
             // Calculate rotation to face the direction of the bullet
             float rotationAngle = Mathf.Atan2(bulletDirection.y, bulletDirection.x) * Mathf.Rad2Deg;

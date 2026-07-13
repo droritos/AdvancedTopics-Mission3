@@ -28,7 +28,7 @@ public class BulletFire : MonoBehaviour
     public void BulletDirection(GameObject bullet ,Vector2 direction)
     {
         Rigidbody2D rigidbody = bullet.GetComponent<Rigidbody2D>();
-        rigidbody.velocity = direction * bulletSpeed * Time.fixedDeltaTime;
+        rigidbody.linearVelocity = direction * bulletSpeed * Time.fixedDeltaTime;
     }
 
     private void InstantiateBullet(int index , Vector2 direction)

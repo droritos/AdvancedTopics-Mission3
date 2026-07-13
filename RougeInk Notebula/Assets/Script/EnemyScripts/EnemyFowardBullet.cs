@@ -7,6 +7,6 @@ public class EnemyFowardBullet : MonoBehaviour
 
     void Start()
     {
-        rb.velocity = transform.up * speed;
+        rb.linearVelocity = transform.up * speed;
     }
 }

@@ -16,7 +16,7 @@ public class HomingBulletScript : MonoBehaviour
 
             Vector2 direction = (enemy.position - transform.position).normalized;
             _initialTarget = transform.position + (Vector3)direction * 1000;  // Set a far away point in the direction of the enemy
-            _rb.velocity = direction * speed;
+            _rb.linearVelocity = direction * speed;
 
             float rot = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, 0, rot);
@@ -27,7 +27,7 @@ public class HomingBulletScript : MonoBehaviour
 
     void Update()
     {
-        if (_rb.velocity.magnitude < 0.1f)  // Optional: Check if the bullet has practically stopped
+        if (_rb.linearVelocity.magnitude < 0.1f)  // Optional: Check if the bullet has practically stopped
             Destroy(gameObject);
     }
 

@@ -29,6 +29,6 @@ public class DoubleBulletFire : MonoBehaviour
         SoundManager.Instance.PlaySound(Sounds.ShootingSound);
         bulletRight.GetComponent<Rigidbody2D>();
         bulletLeft.GetComponent<Rigidbody2D>();
-        GetComponent<Rigidbody>().velocity = Vector2.up * bulletSpeed * Time.fixedDeltaTime;
+        GetComponent<Rigidbody>().linearVelocity = Vector2.up * bulletSpeed * Time.fixedDeltaTime;
     }
 }
