@@ -7,15 +7,18 @@ public class EnemyBulletScript : MonoBehaviour
     private Rigidbody2D rb;
     public float force;
 
-    void Start()
+    void OnEnable()
     {
-        rb = GetComponent<Rigidbody2D>();
-        player = GameObject.FindGameObjectWithTag("Player");
+        if (rb == null) rb = GetComponent<Rigidbody2D>();
+        if (player == null) player = GameEventManager.OnRequestPlayerTransform?.Invoke()?.gameObject;
 
-        Vector3 direction = player.transform.position - transform.position;
-        rb.linearVelocity = new Vector2 (direction.x, direction.y).normalized * force;
+        if (player != null)
+        {
+            Vector3 direction = player.transform.position - transform.position;
+            rb.linearVelocity = new Vector2 (direction.x, direction.y).normalized * force;
 
-        float rot = Mathf.Atan2(-direction.y, -direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, rot);
+            float rot = Mathf.Atan2(-direction.y, -direction.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, rot);
+        }
     }
 }

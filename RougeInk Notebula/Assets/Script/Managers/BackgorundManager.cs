@@ -6,7 +6,7 @@ public class BackgorundManager : MonoBehaviour
     public static BackgorundManager Instance; // The "Singleton Pattern" - Easy way to call the BackgorundManager script from everywhere
     public List<GameObject> backgrounds;
     [SerializeField] GameObject backgroundPrefab;
-    [HideInInspector] public Transform mainCameraTransform;
+    private Transform mainCameraTransform;
     [SerializeField] float maxDistance;
     Transform backgroundsParent;
 

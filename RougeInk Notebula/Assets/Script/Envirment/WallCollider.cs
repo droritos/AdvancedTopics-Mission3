@@ -7,7 +7,7 @@ public class WallCollider : MonoBehaviour
     {
         if (collisionObject.CompareTag("EnemyBullet") || collisionObject.CompareTag("Died Enemy") || collisionObject.CompareTag("PlayerBullet") || collisionObject.CompareTag("BossBullet"))
         {
-            Destroy(collisionObject.gameObject); 
+            PoolManager.Instance.ReturnToPool(collisionObject.gameObject.name, collisionObject.gameObject);
         }
     }
 }

@@ -7,13 +7,14 @@ public class UpgradeMenu : MonoBehaviour
     [Header("Shop Data")]
     public GameObject ShopMenu;
     private bool _isShopActive;
+    [SerializeField] private Animator _shopMenuAnimator;
 
     [Header("Animators")]
     [SerializeField] private Animator _eraserANIM;
 
     [Header("Player's Upgrade & Data")]
     [SerializeField] GameObject[] ArrayBulletPrefab;
-    private BulletFire bulletFire;
+    [SerializeField] private BulletFire bulletFire;
     private PlayerHealth _currentHealth;
     public bool isDoubleShot = false;
 
@@ -23,19 +24,27 @@ public class UpgradeMenu : MonoBehaviour
     [SerializeField] List<GameObject> MiddleUpgradeCard;
 
 
-    public static UpgradeMenu Instance;
-
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
-
-        bulletFire = GetComponent<BulletFire>();
-        _currentHealth = FindObjectOfType<PlayerHealth>();
+        _currentHealth = FindAnyObjectByType<PlayerHealth>();
         
         SetFalseCardsUpgrade();
+    }
+
+    private void Start()
+    {
+        if (GameEventManager.Instance != null)
+        {
+            GameEventManager.Instance.OnShowUpgradeMenu += PopUpShow;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GameEventManager.Instance != null)
+        {
+            GameEventManager.Instance.OnShowUpgradeMenu -= PopUpShow;
+        }
     }
     public void PopUpShow()
     {
@@ -43,7 +52,7 @@ public class UpgradeMenu : MonoBehaviour
         {
             _isShopActive = true;
             PickRandomUpgradeCards();
-            ShopMenu.GetComponent<Animator>().SetTrigger("Show");
+            _shopMenuAnimator.SetTrigger("Show");
         }
     }
     public void PopUpHide()
@@ -52,7 +61,7 @@ public class UpgradeMenu : MonoBehaviour
         {
             _isShopActive = false;
             SetFalseCardsUpgrade();
-            ShopMenu.GetComponent<Animator>().SetTrigger("Hide");
+            _shopMenuAnimator.SetTrigger("Hide");
             Time.timeScale = 1f;
         }
     }
@@ -115,7 +124,7 @@ public class UpgradeMenu : MonoBehaviour
         if (bulletFire != null && ArrayBulletPrefab != null)
         {
             isDoubleShot = false;
-            bulletFire.ChangeBullet(ArrayBulletPrefab[0]);
+            bulletFire.ChangeBullet(ArrayBulletPrefab[0], isDoubleShot);
             Debug.Log("You Bought HomingShots");
         }
         PopUpHide();
@@ -126,7 +135,7 @@ public class UpgradeMenu : MonoBehaviour
         if (bulletFire != null && ArrayBulletPrefab != null)
         {
             isDoubleShot = false;
-            bulletFire.ChangeBullet(ArrayBulletPrefab[1]);
+            bulletFire.ChangeBullet(ArrayBulletPrefab[1], isDoubleShot);
         }
         PopUpHide();
     }
@@ -136,23 +145,23 @@ public class UpgradeMenu : MonoBehaviour
         if (bulletFire != null && ArrayBulletPrefab != null)
         {
             isDoubleShot = true;
-            bulletFire.ChangeBullet(ArrayBulletPrefab[2]);
+            bulletFire.ChangeBullet(ArrayBulletPrefab[2], isDoubleShot);
         }
         PopUpHide();
     }
     public void FourthButton() //Increase Damage
     {
         if (bulletFire != null)
-            bulletFire.bulletDamage++;
-        Debug.Log($"Bullet Damage : {bulletFire.bulletDamage}");
+            bulletFire.BulletDamage++;
+        Debug.Log($"Bullet Damage : {bulletFire.BulletDamage}");
         PopUpHide();
 
     }
     public void FifthButton() // Increase shots amount
     {
         if (bulletFire != null)
-            bulletFire._totalShots++;
-        Debug.Log($"Bullet Shots Amount : {bulletFire._totalShots}");
+            bulletFire.TotalShots++;
+        Debug.Log($"Bullet Shots Amount : {bulletFire.TotalShots}");
         PopUpHide();
     }
     public void SixthButton() //Explosive Shots
@@ -160,7 +169,7 @@ public class UpgradeMenu : MonoBehaviour
         if (bulletFire != null && ArrayBulletPrefab != null)
         {
             isDoubleShot = false;
-            bulletFire.ChangeBullet(ArrayBulletPrefab[3]);
+            bulletFire.ChangeBullet(ArrayBulletPrefab[3], isDoubleShot);
         }
         PopUpHide();
     }

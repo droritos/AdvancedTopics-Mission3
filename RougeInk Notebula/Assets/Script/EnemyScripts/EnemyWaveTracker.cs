@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyWaveTracker : MonoBehaviour
 {
-    void OnDestroy()
+    void OnDisable()
     {
         if (GameObject.FindGameObjectWithTag("WaveSpawner") != null)
         {

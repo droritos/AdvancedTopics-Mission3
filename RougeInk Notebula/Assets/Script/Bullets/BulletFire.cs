@@ -3,10 +3,16 @@ using UnityEngine;
 
 public class BulletFire : MonoBehaviour
 {
+    [Header("Database")]
+    [SerializeField] GameDatabase gameDatabase;
+
     [Header("Bullet Data")]
-    [SerializeField] float bulletSpeed = 1500f;
-    [SerializeField] public int _totalShots = 1;
-    [SerializeField] public int bulletDamage;
+    private float bulletSpeed;
+    private int _totalShots;
+    private int bulletDamage;
+
+    public int TotalShots { get => _totalShots; set => _totalShots = value; }
+    public int BulletDamage { get => bulletDamage; set => bulletDamage = value; }
 
     [Header("Bullet Transforms")]
     [SerializeField] GameObject bulletPrefab;
@@ -15,6 +21,12 @@ public class BulletFire : MonoBehaviour
     GameObject bulletParent; // Parent for the bullet clones to go in the Hierarchy
     private void Awake()
     {
+        if (gameDatabase != null)
+        {
+            bulletSpeed = gameDatabase.playerBulletSpeed;
+            _totalShots = gameDatabase.playerTotalShots;
+            bulletDamage = gameDatabase.playerBulletDamage;
+        }
         bulletParent = GameObject.Find("BulletParent"); // finding the Parent in the Hierarchy
     }
     private void Update()
@@ -22,6 +34,7 @@ public class BulletFire : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Space))
         {
             AmoutInstantiateBullet();
+            GetComponent<SquashAndStretch>()?.Squash();
         }
     }
 
@@ -37,25 +50,25 @@ public class BulletFire : MonoBehaviour
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         Quaternion rotation = Quaternion.Euler(new Vector3(0, 0, angle)); 
 
-        GameObject bulletClone = Instantiate(bulletPrefab, bulltetSpawn[index].transform.position, rotation, bulletParent.transform); // Dublicate the bullet 
+        GameObject bulletClone = PoolManager.Instance.SpawnFromPool(bulletPrefab.name, bulletPrefab, bulltetSpawn[index].transform.position, rotation, bulletParent.transform);
         BulletCollision bulletCollision = bulletClone.GetComponent<BulletCollision>();
         if (bulletCollision != null)
         {
-            bulletCollision.bulletCollisionDamage = this.bulletDamage; // Let bulletCollision know his current damage
+            bulletCollision.BulletCollisionDamage = this.bulletDamage; // Let bulletCollision know his current damage
         }
         BulletDirection(bulletClone, direction);
     }
 
-    public void ChangeBullet(GameObject newBulletPrefab)
+    public void ChangeBullet(GameObject newBulletPrefab, bool isDoubleShot)
     {
         int tempDamage = bulletDamage;
         int doubleDamge = bulletDamage + 1;
-        if (!UpgradeMenu.Instance.isDoubleShot)
+        if (!isDoubleShot)
         {
             bulletPrefab = newBulletPrefab;
             bulletDamage = tempDamage;
         }
-        else if (UpgradeMenu.Instance.isDoubleShot)
+        else if (isDoubleShot)
         {
             bulletPrefab = newBulletPrefab;
             bulletDamage = doubleDamge;

@@ -4,44 +4,35 @@ public class BulletCollision : MonoBehaviour
 {
     private bool isHit = false;
     [SerializeField] bool _isPiercingEnabled = false;
-    [HideInInspector] public int bulletCollisionDamage;
-    BossManager bossHited;
+    private int bulletCollisionDamage;
+    public int BulletCollisionDamage { get => bulletCollisionDamage; set => bulletCollisionDamage = value; }
 
-    public void OnTriggerEnter2D(Collider2D collisionObject)
+    void OnEnable()
+    {
+        isHit = false;
+    }
+
+    public void OnTriggerEnter2D(Collider2D collision)
     {
         if (bulletCollisionDamage <= 0)
         {
-            bulletCollisionDamage = GameObject.FindWithTag("Player").GetComponent<BulletFire>().bulletDamage;
+            bulletCollisionDamage = GameEventManager.OnRequestPlayerTransform?.Invoke()?.GetComponent<BulletFire>()?.BulletDamage ?? 0;
             Debug.Log($"bulletCollisionDamage not found used Player-Tag data {bulletCollisionDamage}");
 
         }
-        if (!isHit && !_isPiercingEnabled && collisionObject.CompareTag("Enemy"))
+        
+        if (collision.TryGetComponent(out IDamageable damageable))
         {
-            EnemyBehavior enemyHited = collisionObject.GetComponentInParent<EnemyBehavior>();
-            enemyHited.TakeDamage(bulletCollisionDamage, this.gameObject.GetComponent<Collider2D>());
-            Destroy(gameObject);
-            isHit = true;
-        }
-        else if (!isHit && !_isPiercingEnabled && collisionObject.CompareTag("Boss"))
-        {
-            bossHited = collisionObject.GetComponentInParent<BossManager>();
-            bossHited.TakeDamage(bulletCollisionDamage, this.gameObject.GetComponent<Collider2D>());
-            Destroy(gameObject);
-            isHit = true;
-        }
-        else if (_isPiercingEnabled && collisionObject.CompareTag("Enemy"))
-        {
-            EnemyBehavior enemyHited = collisionObject.GetComponentInParent<EnemyBehavior>();
-            enemyHited.TakeDamage(bulletCollisionDamage, this.gameObject.GetComponent<Collider2D>());
-        }
-        else if (_isPiercingEnabled && collisionObject.CompareTag("Boss"))
-        {
-            bossHited = collisionObject.GetComponentInParent<BossManager>();
-            bossHited.TakeDamage(bulletCollisionDamage, this.gameObject.GetComponent<Collider2D>());
-        }
-        else if (collisionObject.CompareTag("Boss") && collisionObject.CompareTag("Enemy") && collisionObject.CompareTag("Died Enemy")) // Error Checker
-        {
-            Debug.LogError($"Undifined tag : {collisionObject.gameObject.tag}");
+            if (!_isPiercingEnabled && !isHit)
+            {
+                damageable.TakeDamage(bulletCollisionDamage, this.gameObject.GetComponent<Collider2D>());
+                PoolManager.Instance.ReturnToPool(this.gameObject.name, this.gameObject);
+                isHit = true;
+            }
+            else if (_isPiercingEnabled)
+            {
+                damageable.TakeDamage(bulletCollisionDamage, this.gameObject.GetComponent<Collider2D>());
+            }
         }
     }
         

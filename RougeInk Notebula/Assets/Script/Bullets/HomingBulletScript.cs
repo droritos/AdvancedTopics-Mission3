@@ -3,12 +3,11 @@ using UnityEngine;
 public class HomingBulletScript : MonoBehaviour
 {
     public float speed = 5f;
-    private Rigidbody2D _rb;
+    [SerializeField] private Rigidbody2D _rb;
     private Vector2 _initialTarget;
 
     void Start()
     {
-        _rb = GetComponent<Rigidbody2D>();
         GameObject target = FindClosetsTarget();
         if (target != null)
         {

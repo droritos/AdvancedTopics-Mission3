@@ -37,7 +37,7 @@ public class BossLevelTwo : MonoBehaviour
 
     void Start()
     {
-        _player = GameObject.FindGameObjectWithTag("Player").transform;
+        _player = GameEventManager.OnRequestPlayerTransform?.Invoke();
         _zigzagTimer = 0f;
     }
 

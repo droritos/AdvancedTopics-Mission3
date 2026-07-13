@@ -4,7 +4,8 @@ using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
-    Animator deadANM;
+    [SerializeField] private Animator deadANM;
+    [SerializeField] private Collider2D _collider2D;
     public int maxPlayerHealthPoint = 50;
     public int currentPlayerHealthPoint {  get;  set; }
     private bool isAlive = true;
@@ -13,7 +14,8 @@ public class PlayerHealth : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        deadANM = GetComponent<Animator>();
+        if (_collider2D == null) _collider2D = GetComponent<Collider2D>();
+        if (deadANM == null) deadANM = GetComponent<Animator>();
         currentPlayerHealthPoint = maxPlayerHealthPoint;
     }
 
@@ -21,16 +23,17 @@ public class PlayerHealth : MonoBehaviour
     void Update()
     {
         DeadPlayer();
-        ScoreManager.Instance.InItPlayerHp(currentPlayerHealthPoint);
+        GameEventManager.Instance?.TriggerPlayerHPInit(currentPlayerHealthPoint);
     }
 
     private void OnTriggerEnter2D(Collider2D collisionObject)
     {
         if (collisionObject.CompareTag("EnemyBullet") || collisionObject.CompareTag("BossBullet"))
         {
-            Destroy(collisionObject.gameObject);
+            PoolManager.Instance.ReturnToPool(collisionObject.gameObject.name, collisionObject.gameObject);
             currentPlayerHealthPoint--;
-            ScoreManager.Instance.TheCurrectPlayerHP(1);
+            GameEventManager.Instance?.TriggerPlayerHPChanged(1);
+            if (GameEventManager.Instance != null) GameEventManager.Instance.TriggerImpactOccurred(); // Juice on hit!
         }
     }
     public void ResetPlayerHealthOnDemand() // Reset the playerHealth when hit the buttton
@@ -44,7 +47,7 @@ public class PlayerHealth : MonoBehaviour
         if (currentPlayerHealthPoint <= 0)
         {
             currentPlayerHealthPoint = 0;
-            GetComponent<BoxCollider2D>().enabled = false;
+            if (_collider2D != null) _collider2D.enabled = false;
             deadANM.SetTrigger("IsDead");
             isAlive = false;
             Debug.Log($"Player Died | isAlive = {this.isAlive}");

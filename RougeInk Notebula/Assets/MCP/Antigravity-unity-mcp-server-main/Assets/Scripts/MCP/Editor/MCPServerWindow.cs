@@ -25,12 +25,12 @@ public class MCPServerWindow : EditorWindow
     private void OnEnable()
     {
         // Calculate path to mcp-server (assumes it is parallel to Assets)
-        serverPath = Path.GetFullPath(Path.Combine(Application.dataPath, "../mcp-server"));
+        serverPath = Path.GetFullPath(Path.Combine(Application.dataPath, "MCP/Antigravity-unity-mcp-server-main/mcp-server"));
     }
 
     private static void TryAutoStart()
     {
-        serverPath = Path.GetFullPath(Path.Combine(Application.dataPath, "../mcp-server"));
+        serverPath = Path.GetFullPath(Path.Combine(Application.dataPath, "MCP/Antigravity-unity-mcp-server-main/mcp-server"));
         
         int savedPid = EditorPrefs.GetInt(PID_PREF_KEY, -1);
         if (savedPid != -1)
@@ -63,7 +63,7 @@ public class MCPServerWindow : EditorWindow
 
     private static void EnsureBridgeExists()
     {
-        if (Object.FindObjectOfType<MCPBridge>() == null)
+        if (Object.FindAnyObjectByType<MCPBridge>() == null)
         {
             GameObject obj = new GameObject("MCPBridge");
             obj.AddComponent<MCPBridge>();

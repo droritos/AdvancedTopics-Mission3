@@ -32,7 +32,7 @@ public class BossLevelOne : MonoBehaviour
     }
     void Start()
     {
-        _player = GameObject.FindGameObjectWithTag("Player").transform;
+        _player = GameEventManager.OnRequestPlayerTransform?.Invoke();
     }
 
     // Update is called once per frame

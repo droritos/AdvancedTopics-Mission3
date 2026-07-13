@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "UnityMCP": {
+      "command": "node",
+      "args": [
+        "c:/Users/drorg/Documents/GitHub/AdvancedTopics-Mission3/RougeInk Notebula/Assets/MCP/Antigravity-unity-mcp-server-main/mcp-server/dist/index.js"
+      ]
+    }
+  }
+}

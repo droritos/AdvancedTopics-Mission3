@@ -9,14 +9,26 @@ public class ScoreManager : MonoBehaviour
     public int waveCouter;
     private int playerHP;
 
-    public static ScoreManager Instance;//The "Singleton Pattern" - Easy way to call the ScoreManger script from every where
-
-    private void Awake()
+    private void Start()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        if (GameEventManager.Instance != null)
+        {
+            GameEventManager.Instance.OnPlayerHPInit += InItPlayerHp;
+            GameEventManager.Instance.OnPlayerHPChanged += TheCurrectPlayerHP;
+            GameEventManager.Instance.OnWaveChanged += CurrentWaveText;
+            GameEventManager.Instance.OnWaveEnemiesChanged += WaveAlivedEnemies;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GameEventManager.Instance != null)
+        {
+            GameEventManager.Instance.OnPlayerHPInit -= InItPlayerHp;
+            GameEventManager.Instance.OnPlayerHPChanged -= TheCurrectPlayerHP;
+            GameEventManager.Instance.OnWaveChanged -= CurrentWaveText;
+            GameEventManager.Instance.OnWaveEnemiesChanged -= WaveAlivedEnemies;
+        }
     }
     public void TheCurrectPlayerHP(int value)
     {

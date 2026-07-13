@@ -41,7 +41,7 @@ public class WaveSpawner : MonoBehaviour
                 Vector3 spawnOffset = new Vector3(Random.Range(minimumSpawRadius.x, maximunSpawRadius.x), Random.Range(minimumSpawRadius.y, maximunSpawRadius.y), 0);
                 Vector3 spawnPosition = playerPosition.position + spawnOffset;
                 // Instantiate the enemy at the calculated position
-                GameObject enemy = (GameObject)Instantiate(enemiesToSpawn[0], spawnPosition, transform.rotation, GameObject.Find("EnemiesContainer").transform); // spawn first enemy in our list
+                GameObject enemy = PoolManager.Instance.SpawnFromPool(enemiesToSpawn[0].name, enemiesToSpawn[0], spawnPosition, transform.rotation, GameObject.Find("EnemiesContainer").transform); // spawn first enemy in our list
                 enemiesToSpawn.RemoveAt(0); // and remove it
                 spawnedEnemies.Add(enemy);
                 _spawnTimer = _spawnInterval;
@@ -72,12 +72,12 @@ public class WaveSpawner : MonoBehaviour
 
     private bool IsBossAlive()
     {
-        return FindObjectsOfType<BossManager>().Any(boss => !boss.isDead);
+        return FindObjectsByType<BossManager>().Any(boss => !boss.isDead);
     }
     public void GenerateWave()
     {
         currentWave++;
-        ScoreManager.Instance.CurrentWaveText(currentWave);
+        GameEventManager.Instance?.TriggerWaveChanged(currentWave);
         PlayerPrefs.SetInt("WaveDied", currentWave);
         _waveValue = currentWave * 10;
         GenerateEnemies();
@@ -113,7 +113,7 @@ public class WaveSpawner : MonoBehaviour
         {
             _bossIndex++;
             currentWave++;
-            ScoreManager.Instance.CurrentWaveText(currentWave);
+            GameEventManager.Instance?.TriggerWaveChanged(currentWave);
             InstantiateBossByIndex(_bossIndex);
         }
     }
@@ -124,16 +124,16 @@ public class WaveSpawner : MonoBehaviour
         Vector3 spawnPosition = playerPosition.position + spawnOffset;
         if (spawnedEnemies.Count <= 0 && index % 2 == 0)
         {
-            Instantiate(bossesPrefab[0], spawnPosition, transform.rotation, GameObject.Find("EnemiesContainer").transform);
+            PoolManager.Instance.SpawnFromPool(bossesPrefab[0].name, bossesPrefab[0], spawnPosition, transform.rotation, GameObject.Find("EnemiesContainer").transform);
         }
         else
         {
-            Instantiate(bossesPrefab[1], spawnPosition, transform.rotation, GameObject.Find("EnemiesContainer").transform);
+            PoolManager.Instance.SpawnFromPool(bossesPrefab[1].name, bossesPrefab[1], spawnPosition, transform.rotation, GameObject.Find("EnemiesContainer").transform);
         }
     }
     public void UpdateList()
     {
-        ScoreManager.Instance.WaveAlivedEnemies(spawnedEnemies.Count);
+        GameEventManager.Instance?.TriggerWaveEnemiesChanged(spawnedEnemies.Count);
         for (int i = enemiesToSpawn.Count - 1; i >= 0; i--)
         {
             if (enemiesToSpawn[i] == null)

@@ -8,16 +8,16 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioClip enemyDied;
     [SerializeField] AudioClip backgroundMusic;
     [SerializeField] AudioClip gameOver;
-    AudioSource audioSource;
+    [SerializeField] private AudioSource audioSource;
     public static SoundManager Instance;
 
     private void Awake()
     {
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
         if (Instance == null)
             Instance = this;
         else
             Destroy(gameObject);
-        audioSource = GetComponent<AudioSource>();
     }
     public void PlaySound(Sounds sound)
     {

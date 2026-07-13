@@ -16,7 +16,10 @@ public class DoubleBulletFire : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyUp(KeyCode.Mouse0))
+        {
             InstantiateBullet();
+            GetComponent<SquashAndStretch>()?.Squash();
+        }
     }
 
     private void InstantiateBullet()

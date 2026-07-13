@@ -53,3 +53,6 @@ After writing, confirm the file exists.
 When a workflow requires saving an artifact to `artifacts/superpowers/`, you MUST ensure the file exists on disk.
 Preferred method: use `python .agent/skills/superpowers-workflow/scripts/write_artifact.py --path <...>`.
 If you cannot execute commands, instruct the user to save the output manually.
+
+## 6) Transparency on Skill/Superpower usage
+On every output you generate, you MUST explicitly state which skill, superpower workflow, or MCP tool you used to accomplish the task or generate the response.
