@@ -8,7 +8,6 @@ Shader "Hidden/DoodleWobble"
     }
     SubShader
     {
-        // No culling or depth
         Cull Off ZWrite Off ZTest Always
 
         Pass
@@ -42,7 +41,6 @@ Shader "Hidden/DoodleWobble"
             float _WobbleSpeed;
             float _WobbleStrength;
 
-            // Simple pseudo-random function
             float random(float2 uv)
             {
                 return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453123);
@@ -60,8 +58,7 @@ Shader "Hidden/DoodleWobble"
                 float2 uvOffset = float2(offsetX, offsetY) * _WobbleStrength;
                 
                 // Apply the wobble to the final render output!
-                fixed4 col = tex2D(_MainTex, i.uv + uvOffset);
-                return col;
+                return tex2D(_MainTex, i.uv + uvOffset);
             }
             ENDCG
         }

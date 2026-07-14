@@ -5275,6 +5275,7 @@ GameObject:
   - component: {fileID: 1386531288}
   - component: {fileID: 1386531289}
   - component: {fileID: 1386531290}
+  - component: {fileID: 1386531291}
   m_Layer: 0
   m_Name: MainCamera
   m_TagString: MainCamera
@@ -5394,6 +5395,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aeb83d106c5091141b9141c108aeb07d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlipbookEffect
+--- !u!114 &1386531291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1386531285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea69f3ab9b23d8845ae21612b4522197, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraDoodleEffect
+  wobbleSpeed: 12
+  wobbleStrength: 0.0004
 --- !u!1001 &1409907636
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5503,7 +5518,6 @@ MonoBehaviour:
   enableCameraShake: 1
   enableHitStop: 0
   enableFlipbook: 1
-  _enablePaperOverlay: 1
   shakeDuration: 0.2
   shakeMagnitude: 0.3
 --- !u!1 &1430324501

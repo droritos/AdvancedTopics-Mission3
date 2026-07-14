@@ -6,6 +6,8 @@ Shader "Custom/SpriteFlash"
         _Color ("Tint", Color) = (1,1,1,1)
         _FlashColor ("Flash Color", Color) = (1,1,1,1)
         _FlashAmount ("Flash Amount", Range(0,1)) = 0
+        _WobbleSpeed ("Wobble Speed (FPS)", Float) = 12
+        _WobbleAmount ("Wobble Amount", Float) = 0.05
         [MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
     }
 
@@ -48,11 +50,30 @@ Shader "Custom/SpriteFlash"
             };
             
             fixed4 _Color;
+            float _WobbleSpeed;
+            float _WobbleAmount;
+
+            // Simple pseudo-random function
+            float hash(float2 p) {
+                return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
+            }
 
             v2f vert(appdata_t IN)
             {
                 v2f OUT;
-                OUT.vertex = UnityObjectToClipPos(IN.vertex);
+                
+                // Quantize time to create discrete "frames" of animation (Boiling Line effect)
+                float discreteTime = floor(_Time.y * _WobbleSpeed);
+                
+                // Add pseudo-random offset based on the quantized time and the vertex's local position
+                float noiseX = hash(IN.vertex.xy + float2(discreteTime, 0.0)) * 2.0 - 1.0;
+                float noiseY = hash(IN.vertex.xy + float2(0.0, discreteTime)) * 2.0 - 1.0;
+                
+                float4 wobbledVertex = IN.vertex;
+                wobbledVertex.x += noiseX * _WobbleAmount;
+                wobbledVertex.y += noiseY * _WobbleAmount;
+                
+                OUT.vertex = UnityObjectToClipPos(wobbledVertex);
                 OUT.texcoord = IN.texcoord;
                 OUT.color = IN.color * _Color;
                 #ifdef PIXELSNAP_ON

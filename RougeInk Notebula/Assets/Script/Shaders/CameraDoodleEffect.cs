@@ -8,7 +8,7 @@ public class CameraDoodleEffect : MonoBehaviour
     
     [Header("Juice Settings")]
     [Tooltip("How many times per second the wobble should update (e.g. 12 FPS for animation style)")]
-    [Range(1f, 24f)] public float wobbleSpeed = 8f;
+    [Range(1f, 24f)] public float wobbleSpeed = 12f;
     
     [Tooltip("How intense the distortion is")]
     [Range(0.0001f, 0.01f)] public float wobbleStrength = 0.002f;

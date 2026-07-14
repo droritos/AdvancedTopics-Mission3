@@ -10,21 +10,6 @@ public class JuiceManager : MonoBehaviour
     public bool enableCameraShake = true;
     public bool enableHitStop = true;
     public bool enableFlipbook = true;
-    
-    [SerializeField] private bool _enablePaperOverlay = true;
-    public bool enablePaperOverlay
-    {
-        get => _enablePaperOverlay;
-        set
-        {
-            if (_enablePaperOverlay != value)
-            {
-                _enablePaperOverlay = value;
-                OnPaperOverlayToggled?.Invoke(_enablePaperOverlay);
-            }
-        }
-    }
-    public event System.Action<bool> OnPaperOverlayToggled;
 
     [Header("Camera Shake Settings")]
     public float shakeDuration = 0.2f;
@@ -45,33 +30,23 @@ public class JuiceManager : MonoBehaviour
         }
     }
 
-#if UNITY_EDITOR
-    private void OnValidate()
+    private void Start()
     {
-        if (Application.isPlaying)
+        if (Camera.main != null)
+            originalCameraPos = Camera.main.transform.localPosition;
+
+        if (GameEventManager.Instance != null)
         {
-            OnPaperOverlayToggled?.Invoke(_enablePaperOverlay);
+            GameEventManager.Instance.OnImpactOccurred += TriggerImpact;
         }
     }
-#endif
 
-    private void OnEnable()
-    {
-        GameEventManager.Instance.OnImpactOccurred += TriggerImpact;
-    }
-
-    private void OnDisable()
+    private void OnDestroy()
     {
         if (GameEventManager.Instance != null)
         {
             GameEventManager.Instance.OnImpactOccurred -= TriggerImpact;
         }
-    }
-
-    private void Start()
-    {
-        if (Camera.main != null)
-            originalCameraPos = Camera.main.transform.localPosition;
     }
 
     private void TriggerImpact()
