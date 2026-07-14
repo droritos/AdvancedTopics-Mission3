@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class BulletFire : MonoBehaviour
+public class BulletFire : MonoBehaviour, IPausable
 {
     [Header("Database")]
     [SerializeField] GameDatabase gameDatabase;
@@ -29,8 +29,24 @@ public class BulletFire : MonoBehaviour
         }
         bulletParent = GameObject.Find("BulletParent"); // finding the Parent in the Hierarchy
     }
+    private bool _isPaused;
+    public void SetPaused(bool isPaused) { _isPaused = isPaused; }
+
+    private void Start()
+    {
+        if (GameEventManager.Instance != null)
+            GameEventManager.Instance.OnGamePaused += SetPaused;
+    }
+
+    private void OnDestroy()
+    {
+        if (GameEventManager.Instance != null)
+            GameEventManager.Instance.OnGamePaused -= SetPaused;
+    }
+
     private void Update()
     {
+        if (_isPaused) return;
         if (Input.GetKeyUp(KeyCode.Space))
         {
             AmoutInstantiateBullet();

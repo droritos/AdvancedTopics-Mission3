@@ -8,6 +8,7 @@ public class UpgradeMenu : MonoBehaviour
     public GameObject ShopMenu;
     private bool _isShopActive;
     [SerializeField] private Animator _shopMenuAnimator;
+    private CanvasGroup _canvasGroup;
 
     [Header("Animators")]
     [SerializeField] private Animator _eraserANIM;
@@ -26,8 +27,8 @@ public class UpgradeMenu : MonoBehaviour
 
     private void Awake()
     {
+        _canvasGroup = GetComponent<CanvasGroup>();
         _currentHealth = FindAnyObjectByType<PlayerHealth>();
-        
         SetFalseCardsUpgrade();
     }
 
@@ -48,29 +49,47 @@ public class UpgradeMenu : MonoBehaviour
     }
     public void PopUpShow()
     {
+        Debug.Log("PopUpShow Triggered!");
         if (!_isShopActive)
         {
             _isShopActive = true;
             PickRandomUpgradeCards();
-            _shopMenuAnimator.SetTrigger("Show");
+            
+            if (_shopMenuAnimator != null) _shopMenuAnimator.SetTrigger("Show");
+            
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.alpha = 1f;
+                _canvasGroup.interactable = true;
+                _canvasGroup.blocksRaycasts = true;
+            }
+
+            if (GameEventManager.Instance != null)
+                GameEventManager.Instance.TriggerGamePaused(true);
         }
     }
     public void PopUpHide()
     {
+        Debug.Log("PopUpHide Triggered!");
         if (_isShopActive)
         {
             _isShopActive = false;
             SetFalseCardsUpgrade();
-            _shopMenuAnimator.SetTrigger("Hide");
-            Time.timeScale = 1f;
+            
+            if (_shopMenuAnimator != null) _shopMenuAnimator.SetTrigger("Hide");
+            
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.alpha = 0f;
+                _canvasGroup.interactable = false;
+                _canvasGroup.blocksRaycasts = false;
+            }
+
+            if (GameEventManager.Instance != null)
+                GameEventManager.Instance.TriggerGamePaused(false);
         }
     }
 
-    private IEnumerator StopTimeWhenUpgrade(float sec)
-    {
-        yield return new WaitForSeconds(sec);
-        Time.timeScale = 0f;
-    }
 
     private void PickRandomUpgradeCards()
     {

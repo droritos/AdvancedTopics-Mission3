@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DoubleBulletFire : MonoBehaviour
+public class DoubleBulletFire : MonoBehaviour, IPausable
 {
     [SerializeField] GameObject bullet;
     [SerializeField] GameObject bulltetSpawn;
@@ -13,8 +13,24 @@ public class DoubleBulletFire : MonoBehaviour
     {
         bulletParent = GameObject.Find("BulletParent"); // finding the Parent in the Hierarchy
     }
+    private bool _isPaused;
+    public void SetPaused(bool isPaused) { _isPaused = isPaused; }
+
+    private void Start()
+    {
+        if (GameEventManager.Instance != null)
+            GameEventManager.Instance.OnGamePaused += SetPaused;
+    }
+
+    private void OnDestroy()
+    {
+        if (GameEventManager.Instance != null)
+            GameEventManager.Instance.OnGamePaused -= SetPaused;
+    }
+
     private void Update()
     {
+        if (_isPaused) return;
         if (Input.GetKeyUp(KeyCode.Mouse0))
         {
             InstantiateBullet();

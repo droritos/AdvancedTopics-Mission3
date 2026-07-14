@@ -1,13 +1,14 @@
 using UnityEngine;
 
-public class HomingBulletScript : MonoBehaviour
+public class HomingBulletScript : BaseBullet
 {
     public float speed = 5f;
-    [SerializeField] private Rigidbody2D _rb;
     private Vector2 _initialTarget;
 
-    void Start()
+    protected override void Start()
     {
+        base.Start();
+
         GameObject target = FindClosetsTarget();
         if (target != null)
         {
@@ -26,6 +27,7 @@ public class HomingBulletScript : MonoBehaviour
 
     void Update()
     {
+        if (_isPaused) return;
         if (_rb.linearVelocity.magnitude < 0.1f)  // Optional: Check if the bullet has practically stopped
             Destroy(gameObject);
     }

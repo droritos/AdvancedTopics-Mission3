@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SpaceshipMovement : MonoBehaviour
+public class SpaceshipMovement : MonoBehaviour, IPausable
 {   
     [SerializeField] float shipSpeed = 10f;
     [SerializeField] float maxTiltAngle = 35f;
@@ -11,6 +11,25 @@ public class SpaceshipMovement : MonoBehaviour
     public GameObject collisionVfxPrefab;
     private float _knockbackRecoveryTime;
     private Rigidbody2D _rb;
+    private bool _isPaused;
+
+    public void SetPaused(bool isPaused)
+    {
+        _isPaused = isPaused;
+        if (_rb != null) _rb.simulated = !isPaused;
+    }
+
+    private void Start()
+    {
+        if (GameEventManager.Instance != null)
+            GameEventManager.Instance.OnGamePaused += SetPaused;
+    }
+
+    private void OnDestroy()
+    {
+        if (GameEventManager.Instance != null)
+            GameEventManager.Instance.OnGamePaused -= SetPaused;
+    }
 
     private void OnEnable()
     {
@@ -31,6 +50,7 @@ public class SpaceshipMovement : MonoBehaviour
 
     void Update()
     {
+        if (_isPaused) return;
         ShipMovement();
     }
 
@@ -55,6 +75,7 @@ public class SpaceshipMovement : MonoBehaviour
 
     void LateUpdate()
     {
+        if (_isPaused) return;
         if (Time.time < _knockbackRecoveryTime) return;
 
         // Feedback: Tilt ship based on horizontal movement

@@ -55,7 +55,7 @@ public class BossManager : MonoBehaviour, IDamageable
     }
     public void BossDied(Collider2D collisionObject)
     {
-        if (bossCurrentHp <= 0 && gameObject.tag == "Boss")
+        if (bossCurrentHp <= 0 && !isDead)
         {
             isDead = true;
             gameObject.tag = "Died Enemy";

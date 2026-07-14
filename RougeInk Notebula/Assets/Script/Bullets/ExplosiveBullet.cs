@@ -2,19 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ExplosiveBullet : MonoBehaviour
+public class ExplosiveBullet : BaseBullet
 {
     [Header("BulletData")]
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] float bulletSpeed = 0f;
     [SerializeField] int numberOfShrapnel = 8;
     Transform bulletParent;
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         bulletParent = GameObject.Find("BulletParent").transform;
     }
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
         float angleStep = 360.0f / numberOfShrapnel;
         float angle = 0f;
 

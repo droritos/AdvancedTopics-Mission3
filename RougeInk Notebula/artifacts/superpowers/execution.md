@@ -1,0 +1,35 @@
+- **Step**: Create IPausable and Update GameEventManager
+- **Files changed**: IPausable.cs, GameEventManager.cs
+- **What changed**: Created interface, added OnGamePaused event.
+- **Verification command**: Unity compilation check via MCP (pending)
+- **Result**: Not run
+- **Step**: Implement IPausable in SpaceshipMovement.cs
+- **Files changed**: SpaceshipMovement.cs
+- **What changed**: Implemented IPausable, subscribed to OnGamePaused, used rb.simulated and early returns.
+- **Verification command**: Unity compilation check
+- **Result**: Not run
+- **Step**: Implement IPausable in BulletFire.cs
+- **Files changed**: BulletFire.cs
+- **What changed**: Implemented IPausable, subscribed to OnGamePaused, added early return to Update.
+- **Verification command**: Unity compilation check
+- **Result**: Not run
+- **Step**: Implement IPausable in EnemyBehavior.cs
+- **Files changed**: EnemyBehavior.cs
+- **What changed**: Implemented IPausable, subscribed to OnGamePaused, used rb.simulated and early return.
+- **Verification command**: Unity compilation check
+- **Result**: Not run
+- **Step**: Implement IPausable in Bullet Scripts
+- **Files changed**: HomingBulletScript.cs, DoubleBulletFire.cs
+- **What changed**: Implemented IPausable, used rb.simulated and early return.
+- **Verification command**: Unity compilation check
+- **Result**: Not run
+- **Step**: Implement IPausable in WaveSpawner.cs
+- **Files changed**: WaveSpawner.cs
+- **What changed**: Implemented IPausable, used early return in FixedUpdate.
+- **Verification command**: Unity compilation check
+- **Result**: Not run
+- **Step**: UpgradeMenu logic
+- **Files changed**: UpgradeMenu.cs
+- **What changed**: Moved event subscription to Awake, removed timeScale, injected TriggerGamePaused.
+- **Verification command**: Unity compilation check
+- **Result**: Not run

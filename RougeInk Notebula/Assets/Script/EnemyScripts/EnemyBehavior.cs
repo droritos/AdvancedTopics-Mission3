@@ -2,7 +2,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class EnemyBehavior : MonoBehaviour, IDamageable
+public class EnemyBehavior : MonoBehaviour, IDamageable, IPausable
 {
     [Header("Database")]
     [SerializeField] GameDatabase gameDatabase;
@@ -60,8 +60,36 @@ public class EnemyBehavior : MonoBehaviour, IDamageable
 
         _bulletParentHierarchy = GameObject.Find("BulletParent");
     }
+    private bool _isPaused;
+    public void SetPaused(bool isPaused)
+    {
+        _isPaused = isPaused;
+        if (_velocity != null) _velocity.simulated = !isPaused;
+    }
+
+    private void OnDestroy()
+    {
+        if (GameEventManager.Instance != null)
+            GameEventManager.Instance.OnGamePaused -= SetPaused;
+    }
+
+    private void OnEnable()
+    {
+        // Reset state for Object Pooling
+        _isDead = false;
+        gameObject.tag = "Enemy";
+        if (gameDatabase != null)
+        {
+            enemyHealthPoint = gameDatabase.enemyHealthPoint;
+        }
+        _isPaused = false;
+        if (_velocity != null) _velocity.simulated = true;
+    }
+
     void Start()
     {
+        if (GameEventManager.Instance != null)
+            GameEventManager.Instance.OnGamePaused += SetPaused;
         _player = GameEventManager.OnRequestPlayerTransform?.Invoke();
         _orbitDirection = Random.value > 0.5f ? 1f : -1f;
         
@@ -79,6 +107,7 @@ public class EnemyBehavior : MonoBehaviour, IDamageable
     }
     void Update()
     {
+        if (_isPaused) return;
         if (!_isDead)
         {
             EnemyMovement();
@@ -197,7 +226,10 @@ public class EnemyBehavior : MonoBehaviour, IDamageable
             _velocity.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse); // nuke doesnt do any collisionObject to the force so that become null
             _animator.SetTrigger("IsFalling"); //Need diff diying animtion
             SoundManager.Instance.PlaySound(Sounds.EnemyDiedSound); //Need diff diying sound ?
-            StartCoroutine(DestroyEnemy());
+            if (gameObject.activeInHierarchy)
+            {
+                StartCoroutine(DestroyEnemy());
+            }
         }
         else
         {

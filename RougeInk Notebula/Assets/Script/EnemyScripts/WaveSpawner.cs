@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-public class WaveSpawner : MonoBehaviour
+public class WaveSpawner : MonoBehaviour, IPausable
 {
     [Header("Wave Data")]
     public int waveDuration;
@@ -24,14 +24,27 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] Transform playerPosition;
     [SerializeField] Vector2 minimumSpawRadius;
     [SerializeField] Vector2 maximunSpawRadius;
+    private bool _isPaused;
+    public void SetPaused(bool isPaused) { _isPaused = isPaused; }
+
+    private void OnDestroy()
+    {
+        if (GameEventManager.Instance != null)
+            GameEventManager.Instance.OnGamePaused -= SetPaused;
+    }
+
     void Start()
     {
+        if (GameEventManager.Instance != null)
+            GameEventManager.Instance.OnGamePaused += SetPaused;
+        
         currentWave--;
         GenerateWave();
     }
 
     void FixedUpdate()
     {
+        if (_isPaused) return;
         UpdateList();
         if (_spawnTimer <= 0)
         {

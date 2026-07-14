@@ -20,6 +20,7 @@ public class GameEventManager : MonoBehaviour
     public event Action<int> OnWaveEnemiesChanged;
     public event Action OnShowUpgradeMenu;
     public event Action OnImpactOccurred;
+    public event Action<bool> OnGamePaused;
 
     public void TriggerPlayerHPInit(int hp) => OnPlayerHPInit?.Invoke(hp);
     public void TriggerPlayerHPChanged(int damage) => OnPlayerHPChanged?.Invoke(damage);
@@ -27,4 +28,5 @@ public class GameEventManager : MonoBehaviour
     public void TriggerWaveEnemiesChanged(int count) => OnWaveEnemiesChanged?.Invoke(count);
     public void TriggerShowUpgradeMenu() => OnShowUpgradeMenu?.Invoke();
     public void TriggerImpactOccurred() => OnImpactOccurred?.Invoke();
+    public void TriggerGamePaused(bool isPaused) => OnGamePaused?.Invoke(isPaused);
 }
