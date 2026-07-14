@@ -3,44 +3,70 @@ using UnityEngine;
 public class HomingBulletScript : BaseBullet
 {
     public float speed = 5f;
-    private Vector2 _initialTarget;
+    public float rotationSpeed = 10f;
+    private GameObject _target;
 
-    protected override void Start()
+    private void OnEnable()
     {
-        base.Start();
-
-        GameObject target = FindClosetsTarget();
-        if (target != null)
+        if (_rb == null) _rb = GetComponent<Rigidbody2D>();
+        
+        _target = FindClosetsTarget();
+        if (_target == null)
         {
-            Transform enemy = target.transform;
-
-            Vector2 direction = (enemy.position - transform.position).normalized;
-            _initialTarget = transform.position + (Vector3)direction * 1000;  // Set a far away point in the direction of the enemy
-            _rb.linearVelocity = direction * speed;
-
-            float rot = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0, 0, rot);
+            _rb.linearVelocity = transform.up * speed;
         }
-        else
-            Destroy(gameObject);
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (_isPaused) return;
-        if (_rb.linearVelocity.magnitude < 0.1f)  // Optional: Check if the bullet has practically stopped
-            Destroy(gameObject);
+
+        if (_target != null && _target.activeInHierarchy && !_target.CompareTag("Died Enemy"))
+        {
+            // Steer towards target
+            Vector2 direction = (Vector2)_target.transform.position - _rb.position;
+            direction.Normalize();
+            
+            float rotateAmount = Vector3.Cross(direction, transform.up).z;
+            _rb.angularVelocity = -rotateAmount * rotationSpeed * 100f;
+            _rb.linearVelocity = transform.up * speed;
+        }
+        else
+        {
+            // Lost target or no target
+            _rb.angularVelocity = 0f;
+            _rb.linearVelocity = transform.up * speed;
+            _target = FindClosetsTarget(); // Try to find a new target
+        }
     }
 
     private GameObject FindClosetsTarget()
     {
-        GameObject enemyGameObject = GameObject.FindGameObjectWithTag("Enemy");
-        GameObject bossGameObject = GameObject.FindGameObjectWithTag("Boss");
-        if (enemyGameObject != null)
-            return enemyGameObject;
-        else if (bossGameObject != null)
-            return bossGameObject;
-        else
-            return null;
+        float shortestDistance = Mathf.Infinity;
+        GameObject nearestEnemy = null;
+        
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemy in enemies)
+        {
+            float distanceToEnemy = Vector2.Distance(transform.position, enemy.transform.position);
+            if (distanceToEnemy < shortestDistance)
+            {
+                shortestDistance = distanceToEnemy;
+                nearestEnemy = enemy;
+            }
+        }
+        
+        GameObject[] bosses = GameObject.FindGameObjectsWithTag("Boss");
+        foreach (GameObject boss in bosses)
+        {
+            float distanceToBoss = Vector2.Distance(transform.position, boss.transform.position);
+            if (distanceToBoss < shortestDistance)
+            {
+                shortestDistance = distanceToBoss;
+                nearestEnemy = boss;
+            }
+        }
+        
+        return nearestEnemy;
     }
 }

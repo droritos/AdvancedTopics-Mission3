@@ -14,9 +14,9 @@ public class ExplosiveBullet : BaseBullet
         base.Start();
         bulletParent = GameObject.Find("BulletParent").transform;
     }
-    protected override void OnDestroy()
+    private void OnDisable()
     {
-        base.OnDestroy();
+        if (bulletParent == null || !gameObject.scene.isLoaded) return;
         float angleStep = 360.0f / numberOfShrapnel;
         float angle = 0f;
 

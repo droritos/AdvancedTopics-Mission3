@@ -4,8 +4,19 @@ public class BulletCollision : MonoBehaviour
 {
     private bool isHit = false;
     [SerializeField] bool _isPiercingEnabled = false;
+    [SerializeField] private Collider2D _bulletCollider;
     private int bulletCollisionDamage;
     public int BulletCollisionDamage { get => bulletCollisionDamage; set => bulletCollisionDamage = value; }
+
+    private void OnValidate()
+    {
+        if (_bulletCollider == null) _bulletCollider = GetComponent<Collider2D>();
+    }
+
+    void Awake()
+    {
+        if (_bulletCollider != null) _bulletCollider.isTrigger = true;
+    }
 
     void OnEnable()
     {
@@ -16,7 +27,7 @@ public class BulletCollision : MonoBehaviour
     {
         if (bulletCollisionDamage <= 0)
         {
-            bulletCollisionDamage = GameEventManager.OnRequestPlayerTransform?.Invoke()?.GetComponent<BulletFire>()?.BulletDamage ?? 0;
+            bulletCollisionDamage = GameEventManager.OnRequestPlayerTransform?.Invoke()?.GetComponent<PlayerWeapon>()?.BulletDamage ?? 0;
             Debug.Log($"bulletCollisionDamage not found used Player-Tag data {bulletCollisionDamage}");
 
         }
@@ -25,13 +36,13 @@ public class BulletCollision : MonoBehaviour
         {
             if (!_isPiercingEnabled && !isHit)
             {
-                damageable.TakeDamage(bulletCollisionDamage, this.gameObject.GetComponent<Collider2D>());
+                damageable.TakeDamage(bulletCollisionDamage, _bulletCollider);
                 PoolManager.Instance.ReturnToPool(this.gameObject.name, this.gameObject);
                 isHit = true;
             }
             else if (_isPiercingEnabled)
             {
-                damageable.TakeDamage(bulletCollisionDamage, this.gameObject.GetComponent<Collider2D>());
+                damageable.TakeDamage(bulletCollisionDamage, _bulletCollider);
             }
         }
     }

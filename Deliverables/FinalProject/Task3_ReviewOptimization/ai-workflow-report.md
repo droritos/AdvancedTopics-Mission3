@@ -30,3 +30,35 @@ This mission was completed using **Google Gemini (Antigravity System)** with the
 
 ## 5. Lessons Learned regarding AI Integration
 - **Architectural Supervision Required**: A major finding during this workflow was that AI agents often attempt to build ad-hoc, disjointed solutions if left entirely unchecked. For example, when creating a screen juice effect, the AI originally built its own isolated `Action` events instead of utilizing the already established `GameEventManager` global event bus. The user had to actively supervise the AI and command it to route its logic through the existing project infrastructure. This proves that while AI is incredibly fast at generating code, **it requires a human engineer to enforce systemic architecture, design patterns, and scalability.**
+
+## 6. Extensive QA Debugging & Agent Teaching
+Following the core implementation, the user led a rigorous QA testing phase. The AI successfully executed complex debugging tasks including:
+- **Bullet & Upgrade Fixes**: Fixed Homings, Explosive bullets, and Nuke abilities to correctly utilize `IDamageable` and object pooling standards rather than breaking the wave spawners with `Destroy()`.
+- **Boss Bullet Rigidbody Fix**: Solved `MissingComponentException` exceptions by dynamically validating and generating `Rigidbody2D` components on the Boss bullet prefabs.
+- **Enemy Collision Refactor**: Solved a critical "stun-lock" bug where large waves of overlapping enemies would continuously freeze themselves due to physics bounce logic.
+- **Global Rules & OnValidate Caching**: The user explicitly taught the AI a new optimization pattern using `[SerializeField]` and `OnValidate()` to eliminate expensive runtime `GetComponent` calls. The AI successfully applied this across the codebase and formalized it as a workspace-level rule (`.agents/AGENTS.md`), successfully updating its own permanent behavior for all future subagents!
+
+## 7. Required Questions Summary
+**1. What AI tools did you use?** 
+Google Gemini (Antigravity System) with Advanced Agentic Workflows.
+
+**2. Where did AI save the most time?** 
+Generating boilerplate architecture (e.g., `PoolManager` and `GameEventManager`), executing massive multi-file refactors in parallel via subagents, and calculating complex orbital movement mathematics.
+
+**3. Where did AI make mistakes?** 
+It initially created custom `Action` delegates for screen effects instead of hooking into the existing Event Bus. It also attempted to solve a disabled-script issue with hacky code (`this.enabled = true`) when the real issue was a Unity Animator recording mistake.
+
+**4. Where did you have to intervene as humans?** 
+Enforcing strict architectural standards (Event Bus over singletons), identifying Unity-specific editor quirks (Animator disabling scripts, unchecked Inspector checkboxes), and slicing/attaching the AI-generated sprite sheet in the Unity Editor.
+
+**5. Did you use an Agent?** 
+Yes, heavily utilized autonomous Agents, including spawning isolated subagents in parallel to execute refactoring tasks simultaneously without human hand-holding.
+
+**6. Did you use MCP?** 
+Yes, used the `UnityMCP` server to read hierarchy data, fetch console logs, and remotely instantiate test prefabs directly inside the running Unity Editor.
+
+**7. Did you use a Skill?** 
+Yes! We used the Agent Rule creation skill to dynamically write a new Global Agent Rule for Component Caching (`OnValidate` / `[SerializeField]`), permanently adding it to the agent's workspace skills. We also used the `generate_image` skill to create game assets.
+
+**8. What would you do differently next time?** 
+Provide the AI with stricter architectural rules upfront via `AGENTS.md` before starting the refactor to prevent it from creating redundant systems. Additionally, rely more heavily on MCP to inspect active GameObjects before writing code workarounds for Unity editor states.

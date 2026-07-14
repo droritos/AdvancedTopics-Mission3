@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class BulletFire : MonoBehaviour, IPausable
+public class PlayerWeapon : MonoBehaviour, IPausable
 {
     [Header("Database")]
     [SerializeField] GameDatabase gameDatabase;

@@ -135,13 +135,14 @@ public class WaveSpawner : MonoBehaviour, IPausable
     {
         Vector3 spawnOffset = new Vector3(Random.Range(minimumSpawRadius.x, maximunSpawRadius.x), Random.Range(minimumSpawRadius.y, maximunSpawRadius.y), 0);
         Vector3 spawnPosition = playerPosition.position + spawnOffset;
+        GameObject boss;
         if (spawnedEnemies.Count <= 0 && index % 2 == 0)
         {
-            PoolManager.Instance.SpawnFromPool(bossesPrefab[0].name, bossesPrefab[0], spawnPosition, transform.rotation, GameObject.Find("EnemiesContainer").transform);
+            boss = PoolManager.Instance.SpawnFromPool(bossesPrefab[0].name, bossesPrefab[0], spawnPosition, transform.rotation, GameObject.Find("EnemiesContainer").transform);
         }
         else
         {
-            PoolManager.Instance.SpawnFromPool(bossesPrefab[1].name, bossesPrefab[1], spawnPosition, transform.rotation, GameObject.Find("EnemiesContainer").transform);
+            boss = PoolManager.Instance.SpawnFromPool(bossesPrefab[1].name, bossesPrefab[1], spawnPosition, transform.rotation, GameObject.Find("EnemiesContainer").transform);
         }
     }
     public void UpdateList()

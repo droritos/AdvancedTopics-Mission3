@@ -34,13 +34,6 @@ public class BossManager : MonoBehaviour, IDamageable
 
     private void SpawnInkSplash()
     {
-        if (inkSplashPrefab == null)
-        {
-#if UNITY_EDITOR
-            inkSplashPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefab/InkSplash.prefab");
-#endif
-        }
-        
         if (inkSplashPrefab != null)
         {
             GameObject splash = Instantiate(inkSplashPrefab, transform.position, Quaternion.identity);
@@ -59,7 +52,8 @@ public class BossManager : MonoBehaviour, IDamageable
         {
             isDead = true;
             gameObject.tag = "Died Enemy";
-            Vector2 knockbackDirection = (transform.position - collisionObject.transform.position).normalized;
+            if (TryGetComponent(out Collider2D col)) col.enabled = false;
+            Vector2 knockbackDirection = collisionObject != null ? (Vector2)(transform.position - collisionObject.transform.position).normalized : Vector2.zero;
             _velocity.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
             _animator.SetTrigger("IsFalling");
             SoundManager.Instance.PlaySound(Sounds.EnemyDiedSound);

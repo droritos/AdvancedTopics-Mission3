@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DoubleBulletFire : MonoBehaviour, IPausable
+public class PlayerDoubleWeapon : MonoBehaviour, IPausable
 {
     [SerializeField] GameObject bullet;
     [SerializeField] GameObject bulltetSpawn;
@@ -43,11 +43,19 @@ public class DoubleBulletFire : MonoBehaviour, IPausable
         float bulletSpawnX = bulltetSpawn.transform.position.x;
         float bulletSpawnY = bulltetSpawn.transform.position.y;
         Vector2 bulletSpawnVector = new Vector2(bulletSpawnX, bulletSpawnY);
-        GameObject bulletRight = Instantiate(bullet, bulletSpawnVector, Quaternion.identity, bulletParent.transform); // Dublicate the bullet 
-        GameObject bulletLeft = Instantiate(bullet, bulletSpawnVector, Quaternion.identity, bulletParent.transform); // Dublicate the bullet 
+        
+        Vector2 rightOffset = new Vector2(0.3f, 0);
+        Vector2 leftOffset = new Vector2(-0.3f, 0);
+
+        GameObject bulletRight = Instantiate(bullet, bulletSpawnVector + rightOffset, Quaternion.identity, bulletParent.transform); 
+        GameObject bulletLeft = Instantiate(bullet, bulletSpawnVector + leftOffset, Quaternion.identity, bulletParent.transform); 
+        
         SoundManager.Instance.PlaySound(Sounds.ShootingSound);
-        bulletRight.GetComponent<Rigidbody2D>();
-        bulletLeft.GetComponent<Rigidbody2D>();
-        GetComponent<Rigidbody>().linearVelocity = Vector2.up * bulletSpeed * Time.fixedDeltaTime;
+        
+        Rigidbody2D rbRight = bulletRight.GetComponent<Rigidbody2D>();
+        if (rbRight != null) rbRight.linearVelocity = Vector2.up * bulletSpeed * Time.fixedDeltaTime;
+        
+        Rigidbody2D rbLeft = bulletLeft.GetComponent<Rigidbody2D>();
+        if (rbLeft != null) rbLeft.linearVelocity = Vector2.up * bulletSpeed * Time.fixedDeltaTime;
     }
 }

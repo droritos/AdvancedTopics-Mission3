@@ -1,21 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UpgradeMenu : MonoBehaviour
 {
+   
+
     [Header("Shop Data")]
-    public GameObject ShopMenu;
+    //public GameObject ShopMenu;
     private bool _isShopActive;
     [SerializeField] private Animator _shopMenuAnimator;
-    private CanvasGroup _canvasGroup;
 
     [Header("Animators")]
     [SerializeField] private Animator _eraserANIM;
 
     [Header("Player's Upgrade & Data")]
     [SerializeField] GameObject[] ArrayBulletPrefab;
-    [SerializeField] private BulletFire bulletFire;
+    [SerializeField] private PlayerWeapon playerWeapon;
     private PlayerHealth _currentHealth;
     public bool isDoubleShot = false;
 
@@ -23,11 +25,13 @@ public class UpgradeMenu : MonoBehaviour
     [SerializeField] List<GameObject> LeftUpgradeCard;
     [SerializeField] List<GameObject> RightUpgradeCard;
     [SerializeField] List<GameObject> MiddleUpgradeCard;
-
+    
+    
+    private static readonly int Show = Animator.StringToHash("Show");
+    private static readonly int Hide = Animator.StringToHash("Hide");
 
     private void Awake()
     {
-        _canvasGroup = GetComponent<CanvasGroup>();
         _currentHealth = FindAnyObjectByType<PlayerHealth>();
         SetFalseCardsUpgrade();
     }
@@ -38,6 +42,31 @@ public class UpgradeMenu : MonoBehaviour
         {
             GameEventManager.Instance.OnShowUpgradeMenu += PopUpShow;
         }
+
+        AssignButtonListeners(LeftUpgradeCard);
+        AssignButtonListeners(MiddleUpgradeCard);
+        AssignButtonListeners(RightUpgradeCard);
+    }
+
+    private void AssignButtonListeners(List<GameObject> cards)
+    {
+        foreach (var card in cards)
+        {
+            if (card == null) continue;
+            Button btn = card.GetComponent<Button>();
+            if (btn == null) continue;
+
+            btn.onClick.RemoveAllListeners(); // Clear old broken listeners
+
+            if (card.name.Contains("Homing")) btn.onClick.AddListener(FirstButton);
+            else if (card.name.Contains("Piercing")) btn.onClick.AddListener(SecondButton);
+            else if (card.name.Contains("Double")) btn.onClick.AddListener(ThirdButton);
+            else if (card.name.Contains("Damage")) btn.onClick.AddListener(FourthButton);
+            else if (card.name.Contains("Shot++")) btn.onClick.AddListener(FifthButton);
+            else if (card.name.Contains("Explosive")) btn.onClick.AddListener(SixthButton);
+            else if (card.name.Contains("Nuke")) btn.onClick.AddListener(SeventhButton);
+            else if (card.name.Contains("Heal")) btn.onClick.AddListener(EighthButton);
+        }
     }
 
     private void OnDestroy()
@@ -47,7 +76,8 @@ public class UpgradeMenu : MonoBehaviour
             GameEventManager.Instance.OnShowUpgradeMenu -= PopUpShow;
         }
     }
-    public void PopUpShow()
+
+    private void PopUpShow()
     {
         Debug.Log("PopUpShow Triggered!");
         if (!_isShopActive)
@@ -55,20 +85,15 @@ public class UpgradeMenu : MonoBehaviour
             _isShopActive = true;
             PickRandomUpgradeCards();
             
-            if (_shopMenuAnimator != null) _shopMenuAnimator.SetTrigger("Show");
+            if (_shopMenuAnimator != null) _shopMenuAnimator.SetTrigger(Show);
             
-            if (_canvasGroup != null)
-            {
-                _canvasGroup.alpha = 1f;
-                _canvasGroup.interactable = true;
-                _canvasGroup.blocksRaycasts = true;
-            }
 
             if (GameEventManager.Instance != null)
                 GameEventManager.Instance.TriggerGamePaused(true);
         }
     }
-    public void PopUpHide()
+
+    private void PopUpHide()
     {
         Debug.Log("PopUpHide Triggered!");
         if (_isShopActive)
@@ -76,14 +101,8 @@ public class UpgradeMenu : MonoBehaviour
             _isShopActive = false;
             SetFalseCardsUpgrade();
             
-            if (_shopMenuAnimator != null) _shopMenuAnimator.SetTrigger("Hide");
+            if (_shopMenuAnimator != null) _shopMenuAnimator.SetTrigger(Hide);
             
-            if (_canvasGroup != null)
-            {
-                _canvasGroup.alpha = 0f;
-                _canvasGroup.interactable = false;
-                _canvasGroup.blocksRaycasts = false;
-            }
 
             if (GameEventManager.Instance != null)
                 GameEventManager.Instance.TriggerGamePaused(false);
@@ -140,10 +159,10 @@ public class UpgradeMenu : MonoBehaviour
 
     public void FirstButton() // HomingShots
     {
-        if (bulletFire != null && ArrayBulletPrefab != null)
+        if (playerWeapon != null && ArrayBulletPrefab != null)
         {
             isDoubleShot = false;
-            bulletFire.ChangeBullet(ArrayBulletPrefab[0], isDoubleShot);
+            playerWeapon.ChangeBullet(ArrayBulletPrefab[0], isDoubleShot);
             Debug.Log("You Bought HomingShots");
         }
         PopUpHide();
@@ -151,44 +170,47 @@ public class UpgradeMenu : MonoBehaviour
 
     public void SecondButton() // Piercing Shots
     {
-        if (bulletFire != null && ArrayBulletPrefab != null)
+        if (playerWeapon != null && ArrayBulletPrefab != null)
         {
             isDoubleShot = false;
-            bulletFire.ChangeBullet(ArrayBulletPrefab[1], isDoubleShot);
+            playerWeapon.ChangeBullet(ArrayBulletPrefab[1], isDoubleShot);
         }
         PopUpHide();
     }
 
     public void ThirdButton() //Double Shots
     {
-        if (bulletFire != null && ArrayBulletPrefab != null)
+        if (playerWeapon != null && ArrayBulletPrefab != null)
         {
             isDoubleShot = true;
-            bulletFire.ChangeBullet(ArrayBulletPrefab[2], isDoubleShot);
+            playerWeapon.ChangeBullet(ArrayBulletPrefab[2], isDoubleShot);
         }
         PopUpHide();
     }
     public void FourthButton() //Increase Damage
     {
-        if (bulletFire != null)
-            bulletFire.BulletDamage++;
-        Debug.Log($"Bullet Damage : {bulletFire.BulletDamage}");
+        if (playerWeapon != null)
+        {
+            playerWeapon.BulletDamage++;
+            Debug.Log($"Bullet Damage : {playerWeapon.BulletDamage}");
+        }
         PopUpHide();
-
     }
     public void FifthButton() // Increase shots amount
     {
-        if (bulletFire != null)
-            bulletFire.TotalShots++;
-        Debug.Log($"Bullet Shots Amount : {bulletFire.TotalShots}");
+        if (playerWeapon != null)
+        {
+            playerWeapon.TotalShots++;
+            Debug.Log($"Bullet Shots Amount : {playerWeapon.TotalShots}");
+        }
         PopUpHide();
     }
     public void SixthButton() //Explosive Shots
     {
-        if (bulletFire != null && ArrayBulletPrefab != null)
+        if (playerWeapon != null && ArrayBulletPrefab != null)
         {
             isDoubleShot = false;
-            bulletFire.ChangeBullet(ArrayBulletPrefab[3], isDoubleShot);
+            playerWeapon.ChangeBullet(ArrayBulletPrefab[3], isDoubleShot);
         }
         PopUpHide();
     }
@@ -201,9 +223,14 @@ public class UpgradeMenu : MonoBehaviour
         else
             Debug.LogError("Animator not found on the GameObject.");
 
-        GameObject enemies = GameObject.Find("EnemiesContainer");
-        for (int i = enemies.transform.childCount - 1; i >= 0; i--)
-            Destroy(enemies.transform.GetChild(i).gameObject);
+        var allEnemies = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Exclude);
+        foreach (var enemy in allEnemies)
+        {
+            if (enemy is IDamageable damageable && !enemy.gameObject.CompareTag("Player"))
+            {
+                damageable.TakeDamage(9999, null);
+            }
+        }
         PopUpHide();
     }
     public void EighthButton() // HealthRestore

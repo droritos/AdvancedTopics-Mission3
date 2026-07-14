@@ -3,22 +3,20 @@ using UnityEngine;
 public class BulletPiercingCollision : MonoBehaviour
 {
     public int bulletCollisionDamage;
-    BossManager bossHited;
+    [SerializeField] private Collider2D _bulletCollider;
+
+    private void OnValidate()
+    {
+        if (_bulletCollider == null) _bulletCollider = GetComponent<Collider2D>();
+    }
+
     public void OnTriggerEnter2D(Collider2D collisionObject)
     {
-        if (collisionObject.CompareTag("Enemy"))
+        if (collisionObject.CompareTag("Died Enemy")) return;
+
+        if (collisionObject.TryGetComponent(out IDamageable damageable))
         {
-            EnemyBehavior enemyHited = collisionObject.GetComponentInParent<EnemyBehavior>();
-            enemyHited.TakeDamage(bulletCollisionDamage, this.gameObject.GetComponent<Collider2D>());
-        }
-        else if (collisionObject.CompareTag("Boss"))
-        {
-            bossHited = collisionObject.GetComponentInParent<BossManager>();
-            bossHited.TakeDamage(bulletCollisionDamage, this.gameObject.GetComponent<Collider2D>());
-        }
-        else if (collisionObject.CompareTag("Boss") && collisionObject.CompareTag("Enemy") && collisionObject.CompareTag("Died Enemy")) // Error Checker
-        {
-            Debug.LogError($"Undifined tag : {collisionObject.gameObject.tag}");
+            damageable.TakeDamage(bulletCollisionDamage, _bulletCollider);
         }
     }
 }

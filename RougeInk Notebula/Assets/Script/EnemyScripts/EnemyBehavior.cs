@@ -40,6 +40,13 @@ public class EnemyBehavior : MonoBehaviour, IDamageable, IPausable
     private float _orbitDirection = 1f;
     private MaterialPropertyBlock _mpb;
 
+    private void OnValidate()
+    {
+        if (_velocity == null) _velocity = GetComponent<Rigidbody2D>();
+        if (_animator == null) _animator = GetComponent<Animator>();
+        if (_spriteRenderer == null) _spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
     private void Awake()
     {
         if (gameDatabase != null)
@@ -53,10 +60,6 @@ public class EnemyBehavior : MonoBehaviour, IDamageable, IPausable
         }
 
         fireRate = Mathf.Max(0.1f, fireRate);
-
-        if (_velocity == null) _velocity = GetComponent<Rigidbody2D>();
-        if (_animator == null) _animator = GetComponent<Animator>();
-        if (_spriteRenderer == null) _spriteRenderer = GetComponent<SpriteRenderer>();
 
         _bulletParentHierarchy = GameObject.Find("BulletParent");
     }
@@ -78,20 +81,22 @@ public class EnemyBehavior : MonoBehaviour, IDamageable, IPausable
         // Reset state for Object Pooling
         _isDead = false;
         gameObject.tag = "Enemy";
+        if (TryGetComponent(out Collider2D col)) col.enabled = true;
         if (gameDatabase != null)
         {
             enemyHealthPoint = gameDatabase.enemyHealthPoint;
         }
         _isPaused = false;
         if (_velocity != null) _velocity.simulated = true;
+        
+        _player = GameEventManager.OnRequestPlayerTransform?.Invoke();
+        _orbitDirection = Random.value > 0.5f ? 1f : -1f;
     }
 
     void Start()
     {
         if (GameEventManager.Instance != null)
             GameEventManager.Instance.OnGamePaused += SetPaused;
-        _player = GameEventManager.OnRequestPlayerTransform?.Invoke();
-        _orbitDirection = Random.value > 0.5f ? 1f : -1f;
         
         Shader flashShader = Shader.Find("Custom/SpriteFlash");
         if (flashShader != null)
@@ -120,6 +125,10 @@ public class EnemyBehavior : MonoBehaviour, IDamageable, IPausable
 
     private void EnemyMovement()
     {
+        if (_player == null)
+        {
+            _player = GameEventManager.OnRequestPlayerTransform?.Invoke();
+        }
         if (_isDead || _player == null) return;
         if (Time.time < _knockbackRecoveryTime) return;
 
@@ -139,9 +148,12 @@ public class EnemyBehavior : MonoBehaviour, IDamageable, IPausable
             {
                 Vector3 direction = (_player.position - transform.position).normalized;
                 Vector3 perp = new Vector3(-direction.y, direction.x, 0);
-                targetPosition += perp * Mathf.Sin(Time.time * wobbleFrequency) * wobbleAmplitude;
+                targetPosition += perp * (Mathf.Sin(Time.time * wobbleFrequency) * wobbleAmplitude);
             }
             transform.position = Vector2.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+
+            // Dynamically rotate to face the player while moving
+            transform.up = Vector3.Lerp(transform.up, -( _player.position - transform.position).normalized, 5f * Time.deltaTime);
         }
         else if (distanceFromPlayer <= shootingInRange)
         {
@@ -220,9 +232,10 @@ public class EnemyBehavior : MonoBehaviour, IDamageable, IPausable
         {
             _isDead = true;
             gameObject.tag = "Died Enemy";
+            if (TryGetComponent(out Collider2D col)) col.enabled = false;
             SpawnInkSplash();
             //Debug.Log($"game object name : {bulletCollision.gameObject.name}");
-            Vector2 knockbackDirection = (transform.position - bulletCollision.transform.position).normalized;
+            Vector2 knockbackDirection = bulletCollision != null ? (Vector2)(transform.position - bulletCollision.transform.position).normalized : Vector2.zero;
             _velocity.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse); // nuke doesnt do any collisionObject to the force so that become null
             _animator.SetTrigger("IsFalling"); //Need diff diying animtion
             SoundManager.Instance.PlaySound(Sounds.EnemyDiedSound); //Need diff diying sound ?
@@ -269,7 +282,12 @@ public class EnemyBehavior : MonoBehaviour, IDamageable, IPausable
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Died Enemy"))
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            return; // Don't stun or bounce off other enemies, let Unity physics handle separation naturally
+        }
+        
+        if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Died Enemy"))
         {
             Vector2 bounceDirection = (transform.position - collision.transform.position).normalized;
             if (bounceDirection == Vector2.zero) bounceDirection = Random.insideUnitCircle.normalized;
